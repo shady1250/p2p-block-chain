@@ -2,7 +2,7 @@ import random
 from node import Node
 
 class Network:
-    def __init__(self,n,z0,z1,tx,normal_dist):
+    def __init__(self,n,z0,z1,tx,normal_dist,selfish_power):
 
         self.n=n
 
@@ -25,14 +25,20 @@ class Network:
         self.lvc=0
 
         self.normal_dist = normal_dist
+   
+        self.selfish_power = selfish_power
+
 
     def create_nodes(self):
         
         slow=int((self.z0/100)*self.n)
         fast=self.n-slow
 
+        hash_accum =0
         low=int((self.z1/100)*self.n)
         high=self.n-low
+
+        hk=(1-(self.selfish_power/100))/(10*high + low)
 
         for i in range(int(self.n)):
             speed = 0
@@ -70,5 +76,8 @@ class Network:
                 else:
                     cpu=1
                     low-=1
+            
+            if speed == 2:
+                hk *= 10
 
-            self.nodes_list.append(Node(i+1,speed,cpu))
+            self.nodes_list.append(Node(i+1,speed,cpu,hk))

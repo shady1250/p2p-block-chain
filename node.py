@@ -1,6 +1,6 @@
 from queue import Queue
 from block import Block
-
+import random
 
 class Transaction:
     def __init__(self,transaction_str,timestamp,txn_id, from_id,to_id):   
@@ -12,7 +12,7 @@ class Transaction:
         self.to_id= to_id
 
 class Node:
-    def __init__(self,id,speed,cpu):
+    def __init__(self,id,speed,cpu,hk):
 
         #Parameters used to initialize a node consisting of various data structures and variables
         self.id=id
@@ -26,6 +26,8 @@ class Node:
             self.cpu = "low"
         else:
             self.cpu = "high"
+
+        self.hashing_power = hk
 
         self.transactions=[]
 
@@ -51,6 +53,10 @@ class Node:
         self.is_selfish = 0
 
         self.selfish_queue = Queue()
+
+        self.balance = random.randint(100000,200000)
+
+        self.needed_random = 0
         
 
     

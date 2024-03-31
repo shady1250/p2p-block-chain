@@ -20,6 +20,7 @@ def generate_p_matrix(num_nodes):
             p_ij[i][j] = np.random.uniform(0.01, 0.5)
     return p_ij
 
+
 #number of peers
 n=10
 
@@ -32,10 +33,13 @@ z1=80
 #tx = for generating expomnential distribution time
 tx=2
 
+tou1  = 30
+tou2 = 40
+
 normal_dist=generate_p_matrix(n)
 
 #assign network properties and create nodes
-peer_network=Network(n,z0,z1,tx,normal_dist)
+peer_network=Network(n,z0,z1,tx,normal_dist, tou1+tou2)
 
 # Create a simulation environment
 env = simpy.Environment()
@@ -51,20 +55,25 @@ for node in peer_network.graph:
         peer_network.selfish_nodes.append(node)
 
 
+#there are 5 discrete events. each node gets assigned one process from generate_transactions, transmit_transactions, check_transactions_queue, create_blocks,handle_blocks 
+
+#discrete event 1: generate_transactions is a process which will generate transactions for each node with a latency in between
 for node in peer_network.graph:
     env.process(generate_transactions(env, peer_network, node , peer_network.n , resource))
 
-
+#discrete event 2: transmit_transactions is a process which will transmit the transactions from one node to its neighbour, ie add to its neighbour queue
 for node in peer_network.graph:
     env.process(transmit_transactions(env, node , peer_network,resource ))
 
+#discrete event 3: check_transactions_queue is a process which checks the queue of transactions and simulates the latency for each node
 for node in peer_network.graph:
     env.process(check_transactions_queue(env,peer_network, node , resource))
 
-
+#discrete event 4: create_blocks is a process which is used to create blocks for each transaction while simulating the block creation latency
 for node in peer_network.graph:
     env.process(create_blocks(env, node,peer_network, resource))
 
+#discrete event 5: handle_blocks is a process which is used to handle interarrival time of blocks between the nodes
 for node in peer_network.graph:
     env.process(handle_blocks(env , peer_network, node, resource))
 
@@ -121,12 +130,10 @@ def write_to_csv(integer_pairs, csv_file):
             
 i=0
 for node in peer_network.graph:
+
     g=node.block_chain
     hash_to_int_mapping = assign_unique_integers(g)
-
-
     integer_pairs = convert_to_integer_pairs(g, hash_to_int_mapping)
-
     csv_file = 'graph_data'+str(i)+'.csv'
     write_to_csv(integer_pairs, csv_file)
     i=i+1
@@ -139,7 +146,6 @@ for node in peer_network.graph:
     graph_name='graph_visualization'+str(i)+'.png'
     plt.savefig(graph_name)
     print('graph_visualization'+str(i)+'.png created successfully')
-
     plt.close()
     
     

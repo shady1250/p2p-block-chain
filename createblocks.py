@@ -1,6 +1,7 @@
 import random
 from block import Block
 
+
 def create_blocks(env, node, peer_network ,resource):
    while True:
       

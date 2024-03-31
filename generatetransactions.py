@@ -26,17 +26,18 @@ def generate_transactions(env,peer_network, node,n,resource):
                 else:
                     break
 
-        amount=random.randint(500,600)
+        amount=random.randint(100,150)
 
-        #print_stats(resource)
-        with resource.request() as req:
-            yield req         
-            transaction = f"{txn}: {node.id} pays {to_node} {amount} coins at {node.id}"
-            print(transaction)
-            node.transactions.append(Transaction(transaction, env.now,txn, node.id, to_node))
-            txn += 1
+        if node.balance - amount > 0 :
+            with resource.request() as req:
+                yield req         
+                transaction = f"{txn}: {node.id} pays {to_node} {amount} coins at {node.id}"
+                print(transaction)
+                node.transactions.append(Transaction(transaction, env.now,txn, node.id, to_node))
+                txn += 1
 
-
+        else:
+            print("insufficient balance for the required transaction")
         # Wait for a random time before generating the next transaction
         rate_parameter = 1 / peer_network.tx
         next_txn = np.random.exponential(scale=1/rate_parameter, size=1)
